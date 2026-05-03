@@ -12,7 +12,12 @@
 
 ## Скриншоты
 
-> *(добавьте скриншоты приложения после запуска)*
+> *<img width="575" height="1280" alt="WhatsApp Image 2026-05-03 at 19 40 51" src="https://github.com/user-attachments/assets/3b2718b3-d7b4-48fe-918e-a8bd04a80a49" />
+<img width="575" height="1280" alt="WhatsApp Image 2026-05-03 at 19 40 51 (1)" src="https://github.com/user-attachments/assets/6b56df0b-c8f9-4f8a-b54b-635b30b18360" />
+<img width="575" height="1280" alt="WhatsApp Image 2026-05-03 at 19 40 51 (2)" src="https://github.com/user-attachments/assets/d2bf5d93-6c2d-44d9-886a-2e71a5913496" />
+<img width="575" height="1280" alt="WhatsApp Image 2026-05-03 at 19 40 51 (3)" src="https://github.com/user-attachments/assets/495b72ed-1a45-4278-9e71-5d2eb3172fde" />
+<img width="575" height="1280" alt="WhatsApp Image 2026-05-03 at 19 40 51 (4)" src="https://github.com/user-attachments/assets/b06dbd3b-acd5-4d3b-b2d7-5d1f24c6b703" />
+<img width="575" height="1280" alt="WhatsApp Image 2026-05-03 at 19 40 51 (5)" src="https://github.com/user-attachments/assets/7a413e12-707a-453b-b68a-8fd108a15e63" />*
 
 ---
 
