@@ -1,6 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:booklook/core/router/router_notifier.dart';
-import 'package:booklook/data/datasources/auth_local_datasource.dart';
 
 // ---------------------------------------------------------------------------
 // Auth state
@@ -11,18 +11,18 @@ enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
 class AuthState {
   final AuthStatus status;
   final String? errorMessage;
-  final String? token;
+  final User? user;
 
   const AuthState({
     required this.status,
     this.errorMessage,
-    this.token,
+    this.user,
   });
 
   factory AuthState.initial() => const AuthState(status: AuthStatus.initial);
   factory AuthState.loading() => const AuthState(status: AuthStatus.loading);
-  factory AuthState.authenticated(String token) =>
-      AuthState(status: AuthStatus.authenticated, token: token);
+  factory AuthState.authenticated(User user) =>
+      AuthState(status: AuthStatus.authenticated, user: user);
   factory AuthState.unauthenticated() =>
       const AuthState(status: AuthStatus.unauthenticated);
   factory AuthState.error(String message) =>
@@ -34,82 +34,87 @@ class AuthState {
 // ---------------------------------------------------------------------------
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  final AuthLocalDatasource _datasource;
+  final FirebaseAuth _auth;
 
-  AuthNotifier(this._datasource) : super(AuthState.initial());
+  AuthNotifier(this._auth) : super(AuthState.initial());
 
-  // --- validation helpers ---------------------------------------------------
+  // --- helpers --------------------------------------------------------------
 
-  bool _isValidEmail(String email) =>
-      email.isNotEmpty && email.contains('@') && email.contains('.');
-
-  bool _isValidPassword(String password) => password.length >= 4;
+  /// Переводит [FirebaseAuthException.code] в понятное русское сообщение.
+  String _mapFirebaseError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'invalid-email':
+        return 'Некорректный формат email.';
+      case 'user-not-found':
+        return 'Пользователь с таким email не найден.';
+      case 'wrong-password':
+        return 'Неверный пароль.';
+      case 'email-already-in-use':
+        return 'Этот email уже зарегистрирован.';
+      case 'weak-password':
+        return 'Пароль слишком простой (минимум 6 символов).';
+      case 'too-many-requests':
+        return 'Слишком много попыток. Попробуйте позже.';
+      case 'network-request-failed':
+        return 'Нет интернет-соединения.';
+      case 'invalid-credential':
+        return 'Неверный email или пароль.';
+      default:
+        return e.message ?? 'Произошла ошибка. Попробуйте снова.';
+    }
+  }
 
   // --- public API -----------------------------------------------------------
 
-  /// Login with [email] and [password].
-  /// No real backend — validates locally and saves a demo token.
+  /// Вход по email и паролю через Firebase Authentication.
   Future<void> login({
     required String email,
     required String password,
   }) async {
     state = AuthState.loading();
-
-    // Simulate network latency
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    if (!_isValidEmail(email)) {
-      state =
-          AuthState.error('Введите корректный email (например, user@mail.com)');
-      return;
+    try {
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      routerNotifier.setLoggedIn(true);
+      state = AuthState.authenticated(credential.user!);
+    } on FirebaseAuthException catch (e) {
+      state = AuthState.error(_mapFirebaseError(e));
+    } catch (_) {
+      state = AuthState.error('Произошла непредвиденная ошибка.');
     }
-
-    if (!_isValidPassword(password)) {
-      state = AuthState.error('Пароль должен содержать минимум 4 символа');
-      return;
-    }
-
-    const token = 'demo_token';
-    await _datasource.saveToken(token);
-    routerNotifier.setLoggedIn(true);
-    state = AuthState.authenticated(token);
   }
 
-  /// Register with [email], [password] and [confirmPassword].
+  /// Регистрация нового аккаунта через Firebase Authentication.
   Future<void> register({
     required String email,
     required String password,
     required String confirmPassword,
   }) async {
-    state = AuthState.loading();
-
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    if (!_isValidEmail(email)) {
-      state =
-          AuthState.error('Введите корректный email (например, user@mail.com)');
-      return;
-    }
-
-    if (!_isValidPassword(password)) {
-      state = AuthState.error('Пароль должен содержать минимум 4 символа');
-      return;
-    }
-
     if (password != confirmPassword) {
-      state = AuthState.error('Пароли не совпадают');
+      state = AuthState.error('Пароли не совпадают.');
       return;
     }
 
-    const token = 'demo_token';
-    await _datasource.saveToken(token);
-    routerNotifier.setLoggedIn(true);
-    state = AuthState.authenticated(token);
+    state = AuthState.loading();
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      routerNotifier.setLoggedIn(true);
+      state = AuthState.authenticated(credential.user!);
+    } on FirebaseAuthException catch (e) {
+      state = AuthState.error(_mapFirebaseError(e));
+    } catch (_) {
+      state = AuthState.error('Произошла непредвиденная ошибка.');
+    }
   }
 
-  /// Logout — clears the stored token and redirects to login.
+  /// Выход — Firebase signOut.
   Future<void> logout() async {
-    await _datasource.deleteToken();
+    await _auth.signOut();
     routerNotifier.setLoggedIn(false);
     state = AuthState.unauthenticated();
   }
@@ -119,11 +124,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
 // Providers
 // ---------------------------------------------------------------------------
 
-final authDatasourceProvider = Provider<AuthLocalDatasource>((ref) {
-  return AuthLocalDatasource();
+final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
+  return FirebaseAuth.instance;
 });
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  final datasource = ref.watch(authDatasourceProvider);
-  return AuthNotifier(datasource);
+  final auth = ref.watch(firebaseAuthProvider);
+  return AuthNotifier(auth);
 });
