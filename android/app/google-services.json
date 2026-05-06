@@ -1,32 +1,13 @@
 {
   "project_info": {
-    "project_number": "411894041313",
-    "project_id": "workout-tracker-8ed84",
-    "storage_bucket": "workout-tracker-8ed84.firebasestorage.app"
+    "project_number": "945201339573",
+    "project_id": "workout-tracker-1dc2b",
+    "storage_bucket": "workout-tracker-1dc2b.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:411894041313:android:c8f70199ea9edbb86405a0",
-        "android_client_info": {
-          "package_name": "com.example.book_proj"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAynCpISo1p6lRtPMOYc_5AnoZ6D6x1_EM"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:411894041313:android:58584387a6fcd2e46405a0",
+        "mobilesdk_app_id": "1:945201339573:android:8022f45166c6cb2331b2fc",
         "android_client_info": {
           "package_name": "com.example.booklook"
         }
@@ -34,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAynCpISo1p6lRtPMOYc_5AnoZ6D6x1_EM"
+          "current_key": "AIzaSyAfFusnJT6EkgeCaec_fbtIpzYuyRoW6CU"
         }
       ],
       "services": {

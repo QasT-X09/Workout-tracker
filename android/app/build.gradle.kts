@@ -22,7 +22,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.book_proj"
+        applicationId = "com.example.booklook"
         // Firebase Auth requires minSdk 23+
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
